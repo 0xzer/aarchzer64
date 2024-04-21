@@ -70,11 +70,7 @@ impl CpuContext {
                     _ => RegisterValue::Value64(0),
                 }
             },
-            Some('x') => {
-                let reg_index = self.get_register_index(&chars.as_str().replace(",", ""), 0);
-                self.registers[reg_index]
-            },
-            Some('w') => {
+            Some('x') | Some('w') => {
                 let reg_index = self.get_register_index(&chars.as_str().replace(",", ""), 0);
                 self.registers[reg_index]
             },
