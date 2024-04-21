@@ -16,7 +16,7 @@ const REGISTERS_START_STATE: RegisterValue = RegisterValue::Value64(0);
 
 #[derive(Debug)]
 pub struct CpuContext {
-    stack: Stack,
+    pub stack: Stack,
     pc: u64,
     instructions: Instructions,
     // x31 = SP, but lets have the SP in the Stack struct instead
@@ -48,6 +48,10 @@ impl CpuContext {
         self.registers[register.to_index()]
     }
 
+    pub fn get_register_value_index(&self, index: usize) -> RegisterValue {
+        self.registers[index]
+    }
+
     pub fn get_register_value_as<T>(&self, register: Register) -> Option<T>
     where
         T: TryFromRegisterValue<T>,
@@ -65,14 +69,19 @@ impl CpuContext {
             Some('s') => {
                 match chars.next() {
                     // sp
-                    Some('p') => RegisterValue::Ptr(self.stack.get_sp_ptr()),
+                    Some('p') => unsafe { RegisterValue::Ptr(self.stack.get_sp_ptr()) },
                     // preserve for simd registers later if needed
                     _ => RegisterValue::Value64(0),
                 }
             },
-            Some('x') | Some('w') => {
+            Some('x') => {
                 let reg_index = self.get_register_index(&chars.as_str().replace(",", ""), 0);
                 self.registers[reg_index]
+            },
+            Some('w') => {
+                let reg_index = self.get_register_index(&chars.as_str().replace(",", ""), 0);
+                let current_value = self.registers[reg_index];
+                current_value.get_lower32_bits()
             },
             _ => {
                 let raw_value = operand.replace("#", "").replace(",", "");
@@ -84,7 +93,7 @@ impl CpuContext {
         }
     }
 
-    pub fn get_register_dst(&mut self, operand: &String) -> (RegisterType, usize) {
+    pub fn get_register_dst_or_src(&mut self, operand: &String) -> (RegisterType, usize) {
         let mut chars = operand.chars();
         let reg_type = chars.next().unwrap();
         let reg_index = self.get_register_index(chars.as_str(), 1);
