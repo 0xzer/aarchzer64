@@ -2,6 +2,7 @@
 pub(crate) enum Mnemonic {
     MOV,
     ADD,
+    STR,
     UNSUPPORTED,
 }
 
@@ -10,6 +11,7 @@ impl Mnemonic {
         match mnemonic.to_ascii_lowercase().as_str() {
             "mov" => Mnemonic::MOV,
             "add" => Mnemonic::ADD,
+            "str" => Mnemonic::STR,
             _ => Mnemonic::UNSUPPORTED,
         }
     }

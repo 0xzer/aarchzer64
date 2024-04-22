@@ -8,8 +8,8 @@
 	mov x19, 18
 	add x1, x19, x5
 	add x19, x1, x5
-	mov w6, 13
-	mov w7, 15
+	mov w6, #0xd
+	mov w7, 0xf
 	add w8, w6, w7
 	add w8, w8, 10, LSL #3
 	add x19, x1, x19, LSL #5

@@ -1,1 +1,5 @@
-### add readme later
+
+### Supported Instructions
+- [x] add
+- [x] ldr
+- [x] str

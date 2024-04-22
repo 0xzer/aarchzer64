@@ -12,10 +12,10 @@ impl Stack {
         }
     }
 
-    pub unsafe fn get_sp_ptr(&mut self) -> *mut u8 {
+    pub unsafe fn get_sp_ptr(&mut self) -> u64 {
         if self.sp >= self.mem.len() {
             panic!("Stack pointer out of bounds: {} (allocated size={})", self.sp, self.mem.len());
         }
-        self.mem.as_mut_ptr().add(self.sp)
+        self.mem.as_mut_ptr().add(self.sp) as u64
     }
 }

@@ -1,20 +1,22 @@
-use crate::cpu::{context::{CpuContext, RegisterType}, register_value::RegisterValue};
+use crate::cpu::{bitwise::do_bitwise_operation, context::{CpuContext, RegisterType}};
 
 pub unsafe fn do_operand_bitwise_operation(
     args: &Vec<String>,
-    operand: &mut RegisterValue,
+    operand: u64,
     sh_operation_index: usize,
     sh_operation_index_value: usize,
-) {
+) -> u64 {
     if let Some(sh_operation) = args.get(sh_operation_index) {
         let sh_val = args.get(sh_operation_index_value)
             .expect("failed to retrieve bit operation value from instruction")
             .replace("#", "");
-        operand.do_bitwise_operation(sh_operation, sh_val)
-    };
+        do_bitwise_operation(operand, sh_operation, sh_val)
+    } else {
+        operand
+    }
 }
 
-pub fn parse_dst_with_offset(ctx: &mut CpuContext, instruction: &str) -> (String, Option<usize>) {
+pub fn parse_reg_operand_with_offset(ctx: &mut CpuContext, instruction: &str) -> (String, Option<usize>) {
     let trimmed = instruction.trim_matches(|c| c == '[' || c == ']').trim();
     let parts: Vec<&str> = trimmed.split(',').map(|s| s.trim()).collect();
     let register = parts[0].to_string();
@@ -25,7 +27,7 @@ pub fn parse_dst_with_offset(ctx: &mut CpuContext, instruction: &str) -> (String
         } else if part.starts_with("w") || part.starts_with("x") {
             let reg_type = get_reg_type(part);
             let reg_val = ctx.get_operand_value(&part.to_string(), reg_type);
-            offset = Some(reg_val.to_usize());
+            offset = Some(reg_val as usize);
         } else if part.contains("LSL") {
             let shift_parts: Vec<&str> = part.split("LSL").collect();
             if shift_parts.len() == 2 {

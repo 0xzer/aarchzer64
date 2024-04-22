@@ -6,4 +6,5 @@ pub const INSTRUCTION_CALL_TABLE: &[InstructionFn] = &[
     mov,
     add,
     str,
+    ldr,
 ];
