@@ -15,4 +15,4 @@
 	add x19, x1, x19, LSL #5
 	add x19, x19, x2, ROR #6
 	add x19, x2, x19, LSR #24
-	mov x18, x19, LSR #2
+	lsr x18, x19, #2

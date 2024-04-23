@@ -2,6 +2,12 @@ pub trait TryFromU64<T> {
     fn try_from_u64(value: u64) -> Option<T>;
 }
 
+impl TryFromU64<u64> for u64 {
+    fn try_from_u64(value: u64) -> Option<u64> {
+        Some(value) // Directly return the value
+    }
+}
+
 impl TryFromU64<u32> for u32 {
     fn try_from_u64(value: u64) -> Option<u32> {
         if value <= u32::MAX as u64 {
@@ -12,9 +18,9 @@ impl TryFromU64<u32> for u32 {
     }
 }
 
-impl TryFromU64<u64> for u64 {
-    fn try_from_u64(value: u64) -> Option<u64> {
-        Some(value) // Directly return the value
+impl TryFromU64<u8> for u8 {
+    fn try_from_u64(value: u64) -> Option<u8> {
+        Some(value as u8)
     }
 }
 

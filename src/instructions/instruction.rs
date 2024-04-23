@@ -3,6 +3,12 @@ pub(crate) enum Mnemonic {
     MOV,
     ADD,
     STR,
+    LDR,
+    SUB,
+    LSR,
+    LSL,
+    LDRB,
+    STRB,
     UNSUPPORTED,
 }
 
@@ -12,6 +18,12 @@ impl Mnemonic {
             "mov" => Mnemonic::MOV,
             "add" => Mnemonic::ADD,
             "str" => Mnemonic::STR,
+            "ldr" => Mnemonic::LDR,
+            "sub" => Mnemonic::SUB,
+            "lsr" => Mnemonic::LSR,
+            "lsl" => Mnemonic::LSL,
+            "ldrb" => Mnemonic::LDRB,
+            "strb" => Mnemonic::STRB,
             _ => Mnemonic::UNSUPPORTED,
         }
     }

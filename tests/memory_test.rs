@@ -2,25 +2,10 @@ extern crate aarchzer64;
 
 use aarchzer64::{cpu::{context::CpuContext, registers::Register}, unsafe_util::ptr::PointerExt};
 
-/*
-    mov x1, sp
-    mov x2, #5000
-    str x2, [x1]
-    mov x3, #0x2710
-    str x3, [x1, #8]
-    mov x0, #15000
-    str x0, [x1, #16]
-    ldr x4, [x1]
-    ldr x5, [x1, #8]
-    ldr x6, [x1, #16]
-    mov x2, #2
-    ldr x7, [x1, x2, LSL #3]
-    mov x8, x1
-    add x1, x1, x2, LSL #3
-    str x1, [x8, #8]
-    ldr w10, [x1]
-*/
+const STR_INSTRUCTION_MODEL: &str = include_str!("./models/str.s");
 const LDR_INSTRUCTION_MODEL: &str = include_str!("./models/ldr.s");
+const LDRB_INSTRUCTION_MODEL: &str = include_str!("./models/ldrb.s");
+
 #[test]
 fn ldr() {
     let mut ctx = CpuContext::new_from_text(1024, LDR_INSTRUCTION_MODEL);
@@ -53,6 +38,48 @@ fn ldr() {
         },
         Err(e) => {
             println!("failed to execute ldr test: {}", e.message);
+        }
+    }
+}
+
+#[test]
+fn ldrb() {
+    let mut ctx = CpuContext::new_from_text(1024, LDRB_INSTRUCTION_MODEL);
+    match ctx.execute() {
+        Ok(_) => {
+            assert_eq!(ctx.get_register_value_as::<u8>(Register::X7).unwrap(), 176);
+            assert_eq!(ctx.get_register_value_as::<u64>(Register::X6).unwrap(), 734439412276);
+        },
+        Err(e) => {
+            println!("failed to execute ldrb test: {}", e.message);
+        }
+    }
+}
+
+#[test]
+fn str() {
+    let mut ctx = CpuContext::new_from_text(1024, STR_INSTRUCTION_MODEL);
+    match ctx.execute() {
+        Ok(_) => unsafe {
+            let x1 = ctx.get_register_value_as::<*mut u8>(Register::X1).unwrap();
+            // x1 should point to the value 5000
+            let x1_value = x1.read_u64();
+            assert_eq!(x1_value, 5000);
+            // x1 + 8 should point to the value 10000
+            let x1_8_value = x1.offset(8).read_u32();
+            assert_eq!(x1_8_value, 10000);
+            // x1 + 16 should point to x1 (sp at the time)
+            let x1_16_value_ptr = x1.offset(16).read_ptr();
+            // this should point to the value 5000
+            let x1_16_value_u64 = x1_16_value_ptr.read_u64();
+            assert_eq!(x1_16_value_u64, 5000);
+            // x1 + (x2 << 3) should point to 25000
+            let x2_value = ctx.get_register_value_as::<u64>(Register::X2).unwrap();
+            let x1_x2_shl_3 = x1.offset(x2_value.wrapping_shl(3) as isize).read_u32();
+            assert_eq!(x1_x2_shl_3, 25000);
+        },
+        Err(e) => {
+            println!("failed to execute str test: {}", e.message);
         }
     }
 }
